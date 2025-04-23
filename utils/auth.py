@@ -3,32 +3,32 @@ import hashlib
 from utils.db import db
 
 def hash_password(password):
-    """Hash password menggunakan SHA-256"""
+    """Enkripsi password dengan SHA-256"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 def authenticate(username, password):
-    """Autentikasi pengguna"""
+    """Verifikasi login pengguna"""
     if not username or not password:
         return None
         
     hashed_password = hash_password(password)
-    user = db.execute_query(
+    pengguna = db.execute_query(
         "SELECT * FROM users WHERE username = %s AND password = %s",
         (username, hashed_password),
         fetch_one=True
     )
-    return user
+    return pengguna
 
-def register_user(username, password, email, full_name, address=None, phone=None):
+def register_user(username, password, email, nama_lengkap, alamat=None, telepon=None):
     """Mendaftarkan pengguna baru"""
     try:
-        # Validasi tambahan
+        # Validasi input
         if len(username) < 5:
-            st.error("Username harus minimal 5 karakter")
+            st.error("Username minimal 5 karakter")
             return None
             
         if len(password) < 8:
-            st.error("Password harus minimal 8 karakter")
+            st.error("Password minimal 8 karakter")
             return None
             
         # Cek duplikat
@@ -47,32 +47,32 @@ def register_user(username, password, email, full_name, address=None, phone=None
         
         # Buat user baru
         hashed_password = hash_password(password)
-        user = db.execute_query(
+        pengguna = db.execute_query(
             "INSERT INTO users (username, password, email, full_name, address, phone) "
             "VALUES (%s, %s, %s, %s, %s, %s) RETURNING *",
-            (username, hashed_password, email, full_name, address, phone),
+            (username, hashed_password, email, nama_lengkap, alamat, telepon),
             fetch_one=True
         )
-        return user
+        return pengguna
         
     except Exception as e:
         st.error(f"Gagal mendaftar: {str(e)}")
         return None
 
 def get_current_user():
-    """Mendapatkan data pengguna yang sedang login"""
+    """Mendapatkan data pengguna yang login"""
     return st.session_state.get('user')
 
 def is_logged_in():
-    """Cek apakah pengguna sudah login"""
+    """Cek status login"""
     return 'user' in st.session_state
 
 def is_admin():
-    """Cek apakah pengguna adalah admin"""
+    """Cek apakah admin"""
     return is_logged_in() and st.session_state.user.get('role') == 'admin'
 
 def logout():
-    """Logout pengguna"""
+    """Proses logout"""
     if 'user' in st.session_state:
         del st.session_state['user']
     st.rerun()
