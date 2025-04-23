@@ -9,7 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS untuk menyembunyikan sidebar
 hide_sidebar_style = """
     <style>
         section[data-testid="stSidebar"] {
@@ -20,7 +19,6 @@ hide_sidebar_style = """
 st.markdown(hide_sidebar_style, unsafe_allow_html=True)
 
 def show_navbar():
-    # Reuse navbar from app.py
     from app import show_navbar
     show_navbar()
 
