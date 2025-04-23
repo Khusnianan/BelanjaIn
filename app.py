@@ -1,6 +1,6 @@
 # app.py
 import streamlit as st
-from utils.auth import is_logged_in, is_admin, get_current_user, authenticate, register_user, logout
+from utils.auth import is_logged_in, is_admin, get_current_user, authenticate, logout
 from utils.db import db
 
 st.set_page_config(
