@@ -1,50 +1,33 @@
 import streamlit as st
-from utils.auth_utils import is_logged_in, is_admin, get_current_user
+from utils.auth_utils import is_logged_in, is_admin
 
 def tampilkan_navbar():
-    """Menampilkan navigation bar di bagian atas"""
+    """Navbar yang tidak mengganggu form login"""
     if is_logged_in():
-        pengguna = get_current_user()
-        tombol = [
-            ("Beranda", "beranda"),
-            ("Produk", "produk"), 
-            ("Pesanan", "pesanan"),
-            ("Profil", "profil")
-        ]
-        
-        if is_admin():
-            tombol.append(("Admin", "admin"))
-        
-        nav_html = f"""
-        <div class="navbar">
-            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
-            <div class="navbar-links">
-                {"".join([f'<a href="/{link[1]}" class="navbar-link">{link[0]}</a>' for link in tombol])}
-                <a href="#" onclick="logout()" class="navbar-link">Logout</a>
+        # Tampilan untuk user yang sudah login
+        st.markdown("""
+        <div style="display: flex; justify-content: space-between; padding: 1rem; background-color: #FF4B4B; color: white;">
+            <div>BelanjaIn 🛍️</div>
+            <div>
+                <a href="/" style="color: white; margin-right: 1rem;">Beranda</a>
+                <a href="/profil" style="color: white; margin-right: 1rem;">Profil</a>
+                <a href="#" onclick="logout()" style="color: white;">Logout</a>
             </div>
         </div>
         <script>
-            function logout() {{
-                window.parent.postMessage({{type: 'streamlit:setComponentValue', key: 'logout', value: true}}, '*');
-            }}
+            function logout() {
+                window.parent.postMessage({type: 'streamlit:setComponentValue', key: 'logout', value: true}, '*');
+            }
         </script>
-        """
+        """, unsafe_allow_html=True)
     else:
-        nav_html = """
-        <div class="navbar">
-            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
-            <div class="navbar-links">
-                <a href="#login" class="navbar-link">Login</a>
-                <a href="/profil" class="navbar-link">Daftar</a>
+        # Tampilan untuk user belum login
+        st.markdown("""
+        <div style="display: flex; justify-content: space-between; padding: 1rem; background-color: #FF4B4B; color: white;">
+            <div>BelanjaIn 🛍️</div>
+            <div>
+                <a href="#login" style="color: white; margin-right: 1rem;">Login</a>
+                <a href="/profil" style="color: white;">Daftar</a>
             </div>
         </div>
-        """
-    
-    st.markdown(nav_html, unsafe_allow_html=True)
-    
-    # Handle logout dari JavaScript
-    if st.session_state.get('logout'):
-        from utils.auth import logout
-        logout()
-        st.session_state.pop('logout')
-        st.rerun()
+        """, unsafe_allow_html=True)
