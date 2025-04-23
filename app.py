@@ -1,3 +1,5 @@
+import streamlit as st
+
 # Konfigurasi halaman
 st.set_page_config(
     page_title="BelanjaIn - Toko Online",
@@ -6,7 +8,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-import streamlit as st
 from utils.auth import is_logged_in, is_admin, get_current_user, authenticate
 
 # CSS untuk menyembunyikan sidebar dan styling navbar
