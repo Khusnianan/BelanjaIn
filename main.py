@@ -59,6 +59,6 @@ document.addEventListener("switch", function(e) {
 """, unsafe_allow_html=True)
 
 # Manual switch handler via hidden input
-selected = st.experimental_get_query_params().get("page")
+selected = st.query_params.get("page")
 if selected:
-    st.session_state["page"] = selected[0]
+    st.session_state["page"] = selected
