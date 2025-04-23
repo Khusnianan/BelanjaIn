@@ -1,35 +1,42 @@
 import streamlit as st
 import hashlib
 from utils.db import db
+from utils.session_manager import SessionState
 
 def hash_password(password):
-    """Enkripsi password dengan SHA-256"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def authenticate(username, password):
-    """Fungsi login yang lebih robust"""
+def authenticate(username, password, state):
+    """Fungsi login yang independen"""
     try:
-        if not username or not password:
-            st.warning("Harap isi username dan password")
-            return None
-            
-        hashed_password = hash_password(password)
-        pengguna = db.execute_query(
+        hashed = hash_password(password)
+        user = db.execute_query(
             "SELECT * FROM users WHERE username = %s AND password = %s",
-            (username, hashed_password),
+            (username, hashed),
             fetch_one=True
         )
-        
-        if pengguna:
-            return pengguna
-        else:
-            st.error("Kredensial tidak valid")
-            return None
-            
+        if user:
+            state.user = user
+            st.session_state.user = user
+            return True
+        return False
     except Exception as e:
-        st.error(f"Error saat login: {str(e)}")
-        return None
+        st.error(f"Error: {str(e)}")
+        return False
 
-def is_logged_in():
-    """Cek login yang lebih akurat"""
-    return st.session_state.get('user') is not None
+def tampilkan_form_login(state):
+    """Form login yang standalone"""
+    with st.form("login_form"):
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        
+        if st.form_submit_button("Login"):
+            if authenticate(username, password, state):
+                st.rerun()
+            else:
+                st.error("Login gagal")
+
+def logout(state):
+    """Fungsi logout independen"""
+    state.user = None
+    st.session_state.user = None
