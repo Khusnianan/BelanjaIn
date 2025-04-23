@@ -1,8 +1,7 @@
-# app.py
 import streamlit as st
-from utils.auth import is_logged_in, is_admin, get_current_user, authenticate, logout
-from utils.db import db
+from utils.auth import is_logged_in, is_admin, get_current_user, authenticate
 
+# Konfigurasi halaman
 st.set_page_config(
     page_title="BelanjaIn - Toko Online",
     page_icon="🛍️",
@@ -10,79 +9,73 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS untuk menyembunyikan sidebar
-hide_sidebar_style = """
-    <style>
-        section[data-testid="stSidebar"] {
-            display: none !important;
-        }
-    </style>
-"""
-st.markdown(hide_sidebar_style, unsafe_allow_html=True)
-
-# CSS untuk navigation bar
-nav_style = """
-    <style>
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #FF4B4B;
-            color: white;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .navbar-brand {
-            font-weight: bold;
-            font-size: 1.5em;
-        }
-        .navbar-links {
-            display: flex;
-            gap: 20px;
-        }
-        .navbar-link {
-            color: white;
-            text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-        .navbar-link:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-    </style>
-"""
+# CSS untuk menyembunyikan sidebar dan styling navbar
+st.markdown("""
+<style>
+    section[data-testid="stSidebar"] {
+        display: none !important;
+    }
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        background-color: #FF4B4B;
+        color: white;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.5em;
+        color: white;
+        text-decoration: none;
+    }
+    .navbar-links {
+        display: flex;
+        gap: 15px;
+    }
+    .navbar-link {
+        color: white;
+        text-decoration: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+    }
+    .navbar-link:hover {
+        background-color: rgba(255,255,255,0.2);
+    }
+    .login-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+</style>
+""", unsafe_allow_html=True)
 
 def show_navbar():
-    st.markdown(nav_style, unsafe_allow_html=True)
-    
+    """Menampilkan navigation bar di bagian atas"""
     if is_logged_in():
         user = get_current_user()
         links = [
-            ("🏠 Beranda", "pages/Beranda.py"),
-            ("🛒 Produk", "pages/Produk.py"),
-            ("📦 Pesanan", "pages/Pesanan.py"),
-            ("👤 Profil", "pages/Profil.py")
+            ("Beranda", "beranda"),
+            ("Produk", "produk"),
+            ("Pesanan", "pesanan"),
+            ("Profil", "profil")
         ]
         
         if is_admin():
-            links.append(("⚙️ Admin", "pages/5_⚙️_Admin.py"))
+            links.append(("Admin", "admin"))
         
         nav_html = f"""
         <div class="navbar">
-            <div class="navbar-brand">BelanjaIn 🛍️</div>
+            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
             <div class="navbar-links">
-                {"".join([f'<a href="{link[1]}" class="navbar-link">{link[0]}</a>' for link in links])}
+                {"".join([f'<a href="/{link[1]}" class="navbar-link">{link[0]}</a>' for link in links])}
                 <a href="#" onclick="logout()" class="navbar-link">Logout</a>
             </div>
         </div>
@@ -95,72 +88,66 @@ def show_navbar():
     else:
         nav_html = """
         <div class="navbar">
-            <div class="navbar-brand">BelanjaIn 🛍️</div>
+            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
             <div class="navbar-links">
                 <a href="#login" class="navbar-link">Login</a>
-                <a href="pages/profil.py" class="navbar-link">Daftar</a>
+                <a href="/profil" class="navbar-link">Daftar</a>
             </div>
         </div>
         """
     
     st.markdown(nav_html, unsafe_allow_html=True)
-    
-    # Handle logout from JavaScript
-    if st.session_state.get('logout'):
-        logout()
-        st.session_state.pop('logout')
-        st.experimental_rerun()
 
 def show_login_form():
+    """Menampilkan form login di halaman utama"""
     st.markdown("""
     <div class="login-container">
-        <h2 style="text-align: center;">Login ke BelanjaIn</h2>
+        <h2 style="text-align: center; margin-bottom: 25px;">Login ke BelanjaIn</h2>
     </div>
     """, unsafe_allow_html=True)
     
-    with st.container():
-        col1, col2, col3 = st.columns([1,2,1])
-        with col2:
-            with st.form("login_form"):
-                username = st.text_input("Username")
-                password = st.text_input("Password", type="password")
-                submit = st.form_submit_button("Login")
-                
-                if submit:
-                    user = authenticate(username, password)
-                    if user:
-                        st.session_state.user = user
-                        st.experimental_rerun()
-                    else:
-                        st.error("Username/password salah")
-            
-            st.markdown("""
-            <div style="text-align: center; margin-top: 20px;">
-                Belum punya akun? <a href="pages/4_👤_Profil.py">Daftar sekarang</a>
-            </div>
-            """, unsafe_allow_html=True)
+    with st.form("login_form"):
+        username = st.text_input("Username", placeholder="Masukkan username Anda")
+        password = st.text_input("Password", type="password", placeholder="Masukkan password Anda")
+        
+        if st.form_submit_button("Login", use_container_width=True):
+            user = authenticate(username, password)
+            if user:
+                st.session_state.user = user
+                st.rerun()
+            else:
+                st.error("Username atau password salah")
+    
+    st.markdown("""
+    <div style="text-align: center; margin-top: 20px;">
+        Belum punya akun? <a href="/profil" target="_self">Daftar sekarang</a>
+    </div>
+    """, unsafe_allow_html=True)
 
 def show_home_content():
+    """Menampilkan konten utama setelah login"""
     st.title("Selamat datang di BelanjaIn! 🛍️")
     st.markdown("""
     BelanjaIn adalah platform belanja online terbaik untuk kebutuhan sehari-hari.
     
-    **Fitur utama:**
-    - 🛒 Ribuan produk berkualitas
-    - 🚚 Pengiriman cepat
-    - 🔒 Transaksi aman
-    - 💯 Garansi kepuasan
-    
-    Silakan login atau daftar untuk mulai berbelanja.
+    **Mulai berbelanja sekarang:**
+    - Jelajahi berbagai produk berkualitas
+    - Proses checkout yang mudah
+    - Pengiriman cepat dan aman
     """)
 
 def main():
-    show_navbar()
-    
-    if not is_logged_in():
-        show_login_form()
-    else:
-        show_home_content()
+    try:
+        show_navbar()
+        
+        if not is_logged_in():
+            show_login_form()
+        else:
+            show_home_content()
+            
+    except Exception as e:
+        st.error(f"Terjadi kesalahan: {str(e)}")
+        st.button("Coba lagi", on_click=st.rerun)
 
 if __name__ == "__main__":
     main()
