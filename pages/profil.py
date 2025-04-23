@@ -9,7 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# CSS untuk menyembunyikan sidebar
 hide_sidebar_style = """
     <style>
         section[data-testid="stSidebar"] {
@@ -20,7 +19,6 @@ hide_sidebar_style = """
 st.markdown(hide_sidebar_style, unsafe_allow_html=True)
 
 def show_navbar():
-    # Reuse navbar from app.py
     from app import show_navbar
     show_navbar()
 
@@ -50,9 +48,10 @@ def show_register_form():
             else:
                 user = register_user(username, password, email, full_name, address, phone)
                 if user:
-                    st.success("Pendaftaran berhasil! Silakan login.")
+                    st.success("Pendaftaran berhasil! Anda akan dialihkan ke halaman beranda.")
                     st.session_state.user = user
-                    st.experimental_rerun()
+                    st.experimental_set_query_params(page="home")
+                    st.switch_page("app.py")
 
 def show_profile():
     user = get_current_user()
