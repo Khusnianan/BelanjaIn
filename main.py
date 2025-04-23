@@ -1,15 +1,16 @@
 import streamlit as st
 from db import get_all_barang
-from auth import login_user, hash_password
+from auth import login_user
 
-st.set_page_config(page_title="BelanjaIn", layout="wide")
+st.set_page_config(page_title="BelanjaIn - E-Commerce", layout="wide")
+st.title("🛍️ BelanjaIn - E-Commerce")
 
-st.title("🛍️ BelanjaIn - Toko Online")
-
-st.subheader("📦 Daftar Barang")
+# Menampilkan daftar produk
+st.subheader("📦 Daftar Produk")
 barang_df = get_all_barang()
-st.dataframe(barang_df, use_container_width=True)
+st.dataframe(barang_df)
 
+# Login untuk pelanggan, kasir, dan admin
 st.markdown("---")
 st.subheader("🔐 Login")
 
@@ -36,6 +37,6 @@ if "login_role" in st.session_state:
             if user and user["role"] == st.session_state.login_role:
                 st.success(f"Berhasil login sebagai {user['username']} ({user['role']})")
                 st.session_state.user = user
-                st.switch_page(f"pages/{user['role']}_dashboard.py")
+                st.experimental_rerun()
             else:
                 st.error("Username/password salah atau role tidak cocok.")
