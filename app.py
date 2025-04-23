@@ -69,10 +69,10 @@ def show_navbar():
     if is_logged_in():
         user = get_current_user()
         links = [
-            ("🏠 Beranda", "pages/1_🏠_Beranda.py"),
-            ("🛒 Produk", "pages/2_🛒_Produk.py"),
-            ("📦 Pesanan", "pages/3_📦_Pesanan.py"),
-            ("👤 Profil", "pages/4_👤_Profil.py")
+            ("🏠 Beranda", "pages/Beranda.py"),
+            ("🛒 Produk", "pages/Produk.py"),
+            ("📦 Pesanan", "pages/Pesanan.py"),
+            ("👤 Profil", "pages/Profil.py")
         ]
         
         if is_admin():
@@ -98,7 +98,7 @@ def show_navbar():
             <div class="navbar-brand">BelanjaIn 🛍️</div>
             <div class="navbar-links">
                 <a href="#login" class="navbar-link">Login</a>
-                <a href="pages/4_👤_Profil.py" class="navbar-link">Daftar</a>
+                <a href="pages/profil.py" class="navbar-link">Daftar</a>
             </div>
         </div>
         """
