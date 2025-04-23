@@ -1,43 +1,64 @@
 import streamlit as st
-from auth import login, register
+from auth import login_form, register_form
 from db import get_connection
 from models import create_tables
 
-# Setup halaman
-st.set_page_config(page_title="Belanja-in", layout="wide")
+# Konfigurasi awal halaman
+st.set_page_config(page_title="Belanja-in", layout="centered")
 
-# Inisialisasi session
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-if "page" not in st.session_state:
-    st.session_state["page"] = "Login"
-
-# Buat tabel saat pertama jalan
+# Setup database saat pertama run
 conn = get_connection()
 create_tables(conn)
 conn.close()
 
-# Fungsi untuk render top menu
-def top_menu():
-    menu_items = ["Login", "Register"]
-    cols = st.columns(len(menu_items))
+# State halaman (login/register)
+if "page" not in st.session_state:
+    st.session_state["page"] = "login"
 
-    for i, item in enumerate(menu_items):
-        active = st.session_state["page"] == item
-        if cols[i].button(item, key=item):
-            st.session_state["page"] = item
-        if active:
-            cols[i].markdown(f"<div style='height:4px; background-color:#ff4b4b;'></div>", unsafe_allow_html=True)
-        else:
-            cols[i].markdown(f"<div style='height:4px; background-color:transparent;'></div>", unsafe_allow_html=True)
+# State login
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
 
-# Tampilkan top nav hanya kalau belum login
-if not st.session_state["logged_in"]:
-    top_menu()
-
-    if st.session_state["page"] == "Login":
-        login()
-    elif st.session_state["page"] == "Register":
-        register()
-else:
+# Redirect ke dashboard kalau sudah login
+if st.session_state["logged_in"]:
     st.switch_page("pages/1_Dashboard.py")
+
+# Fungsi tampilan bawah (navigasi antar login/register)
+def bottom_text():
+    if st.session_state["page"] == "login":
+        st.markdown(
+            "Belum punya akun? <span style='text-decoration: underline; color: #3366cc; cursor: pointer;' onclick='document.dispatchEvent(new CustomEvent(\"switch\", {detail: \"register\"}))'>Sign up</span>",
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            "Sudah punya akun? <span style='text-decoration: underline; color: #3366cc; cursor: pointer;' onclick='document.dispatchEvent(new CustomEvent(\"switch\", {detail: \"login\"}))'>Login</span>",
+            unsafe_allow_html=True
+        )
+
+# Render halaman login/register
+st.title("🛍️ Belanja-in")
+
+if st.session_state["page"] == "login":
+    login_form()
+elif st.session_state["page"] == "register":
+    register_form()
+
+# Spacer + teks link di bawah
+st.markdown("<br><br>", unsafe_allow_html=True)
+bottom_text()
+
+# Inject JS untuk switch page (karena Streamlit belum support onclick span)
+st.markdown("""
+<script>
+document.addEventListener("switch", function(e) {
+    const page = e.detail;
+    window.parent.postMessage({type: "streamlit:setComponentValue", value: page}, "*");
+});
+</script>
+""", unsafe_allow_html=True)
+
+# Manual switch handler via hidden input
+selected = st.experimental_get_query_params().get("page")
+if selected:
+    st.session_state["page"] = selected[0]
