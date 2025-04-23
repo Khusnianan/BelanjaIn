@@ -8,6 +8,19 @@ st.set_page_config(
     page_icon="🛒"
 )
 
+hide_sidebar_style = """
+    <style>
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+    </style>
+"""
+st.markdown(hide_sidebar_style, unsafe_allow_html=True)
+
+def show_navbar():
+    from app import show_navbar
+    show_navbar()
+
 def show_products():
     st.title("Daftar Produk 🛒")
     
@@ -93,6 +106,7 @@ def main():
         st.warning("Silakan login terlebih dahulu untuk melihat produk.")
         st.stop()
     
+    show_navbar()
     show_products()
 
 if __name__ == "__main__":
