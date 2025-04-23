@@ -17,3 +17,21 @@ def get_user(username):
 def get_all_barang():
     with get_conn() as conn:
         return pd.read_sql("SELECT * FROM barang ORDER BY nama", conn)
+
+def add_barang(nama, harga, stok):
+    with get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO barang (nama, harga, stok) VALUES (%s, %s, %s)", (nama, harga, stok))
+        conn.commit()
+
+def update_barang(id, nama, harga, stok):
+    with get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute("UPDATE barang SET nama = %s, harga = %s, stok = %s WHERE id = %s", (nama, harga, stok, id))
+        conn.commit()
+
+def delete_barang(id):
+    with get_conn() as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM barang WHERE id = %s", (id,))
+        conn.commit()
