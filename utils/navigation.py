@@ -1,5 +1,5 @@
 import streamlit as st
-from utils.auth import is_logged_in, is_admin, get_current_user
+from utils.auth_utils import is_logged_in, is_admin, get_current_user
 
 def tampilkan_navbar():
     """Menampilkan navigation bar di bagian atas"""
