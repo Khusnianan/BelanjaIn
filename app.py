@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Konfigurasi halaman
+# KONFIGURASI HALAMAN (HARUS DI AWAL)
 st.set_page_config(
     page_title="BelanjaIn - Toko Online",
     page_icon="🛍️",
@@ -8,9 +8,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-from utils.auth import is_logged_in, is_admin, get_current_user, authenticate
+# Import library dan modul
+from utils.auth import is_logged_in, is_admin, get_current_user, authenticate, logout
+from utils.db import db
+from utils.navigation import tampilkan_navbar
 
-# CSS untuk menyembunyikan sidebar dan styling navbar
+# CSS untuk tampilan
 st.markdown("""
 <style>
     section[data-testid="stSidebar"] {
@@ -34,20 +37,6 @@ st.markdown("""
         color: white;
         text-decoration: none;
     }
-    .navbar-links {
-        display: flex;
-        gap: 15px;
-    }
-    .navbar-link {
-        color: white;
-        text-decoration: none;
-        padding: 8px 12px;
-        border-radius: 5px;
-        transition: background-color 0.3s;
-    }
-    .navbar-link:hover {
-        background-color: rgba(255,255,255,0.2);
-    }
     .login-container {
         max-width: 500px;
         margin: 40px auto;
@@ -58,63 +47,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def show_navbar():
-    """Menampilkan navigation bar di bagian atas"""
-    if is_logged_in():
-        user = get_current_user()
-        links = [
-            ("Beranda", "beranda"),
-            ("Produk", "produk"),
-            ("Pesanan", "pesanan"),
-            ("Profil", "profil")
-        ]
-        
-        if is_admin():
-            links.append(("Admin", "admin"))
-        
-        nav_html = f"""
-        <div class="navbar">
-            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
-            <div class="navbar-links">
-                {"".join([f'<a href="/{link[1]}" class="navbar-link">{link[0]}</a>' for link in links])}
-                <a href="#" onclick="logout()" class="navbar-link">Logout</a>
-            </div>
-        </div>
-        <script>
-            function logout() {{
-                window.parent.postMessage({{type: 'streamlit:setComponentValue', key: 'logout', value: true}}, '*');
-            }}
-        </script>
-        """
-    else:
-        nav_html = """
-        <div class="navbar">
-            <a href="/" class="navbar-brand">BelanjaIn 🛍️</a>
-            <div class="navbar-links">
-                <a href="#login" class="navbar-link">Login</a>
-                <a href="/profil" class="navbar-link">Daftar</a>
-            </div>
-        </div>
-        """
-    
-    st.markdown(nav_html, unsafe_allow_html=True)
-
-def show_login_form():
-    """Menampilkan form login di halaman utama"""
+def tampilkan_form_login():
+    """Menampilkan form login"""
     st.markdown("""
     <div class="login-container">
         <h2 style="text-align: center; margin-bottom: 25px;">Login ke BelanjaIn</h2>
     </div>
     """, unsafe_allow_html=True)
     
-    with st.form("login_form"):
+    with st.form("form_login"):
         username = st.text_input("Username", placeholder="Masukkan username Anda")
         password = st.text_input("Password", type="password", placeholder="Masukkan password Anda")
         
         if st.form_submit_button("Login", use_container_width=True):
-            user = authenticate(username, password)
-            if user:
-                st.session_state.user = user
+            pengguna = authenticate(username, password)
+            if pengguna:
+                st.session_state.user = pengguna
                 st.rerun()
             else:
                 st.error("Username atau password salah")
@@ -125,26 +73,31 @@ def show_login_form():
     </div>
     """, unsafe_allow_html=True)
 
-def show_home_content():
-    """Menampilkan konten utama setelah login"""
+def tampilkan_beranda():
+    """Menampilkan halaman beranda"""
     st.title("Selamat datang di BelanjaIn! 🛍️")
     st.markdown("""
     BelanjaIn adalah platform belanja online terbaik untuk kebutuhan sehari-hari.
     
-    **Mulai berbelanja sekarang:**
-    - Jelajahi berbagai produk berkualitas
-    - Proses checkout yang mudah
-    - Pengiriman cepat dan aman
+    **Fitur utama:**
+    - 🛒 Ribuan produk berkualitas
+    - 🚚 Pengiriman cepat
+    - 🔒 Transaksi aman
+    - 💯 Garansi kepuasan
+    
+    Silakan jelajahi katalog produk kami.
     """)
 
 def main():
     try:
-        show_navbar()
+        # Tampilkan navbar
+        tampilkan_navbar()
         
+        # Tampilkan konten berdasarkan status login
         if not is_logged_in():
-            show_login_form()
+            tampilkan_form_login()
         else:
-            show_home_content()
+            tampilkan_beranda()
             
     except Exception as e:
         st.error(f"Terjadi kesalahan: {str(e)}")
