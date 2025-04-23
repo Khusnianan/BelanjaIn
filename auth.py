@@ -16,15 +16,20 @@ def login():
     if st.button("Login"):
         conn = get_connection()
         cur = conn.cursor()
-        cur.execute("SELECT password FROM users WHERE email=%s", (email,))
+        cur.execute("SELECT id, password FROM users WHERE email=%s", (email,))
         result = cur.fetchone()
-        if result and check_password(password, result[0].encode()):
-            st.success("Login berhasil!")
-        else:
-            st.error("Login gagal.")
         cur.close()
         conn.close()
 
+        if result and check_password(password, result[1].encode()):
+            st.success("Login berhasil!")
+            # Simpan user ke session state
+            st.session_state["logged_in"] = True
+            st.session_state["user_id"] = result[0]
+            st.experimental_rerun()  # refresh halaman supaya pindah ke dashboard
+        else:
+            st.error("Login gagal. Email atau password salah.")
+            
 def register():
     st.subheader("Register")
     email = st.text_input("Email")
