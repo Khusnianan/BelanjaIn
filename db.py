@@ -1,10 +1,9 @@
 import psycopg2
 import pandas as pd
-
-DB_URL = "postgresql://postgres:iguefKwACKrTVamieBDyZxcjTKNDVcEG@maglev.proxy.rlwy.net:40486/railway"
+import streamlit as st
 
 def get_conn():
-    return psycopg2.connect(DB_URL)
+    return psycopg2.connect(st.secrets["DB_URL"])
 
 def get_user(username):
     with get_conn() as conn:
