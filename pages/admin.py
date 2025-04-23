@@ -8,6 +8,19 @@ st.set_page_config(
     page_icon="⚙️"
 )
 
+hide_sidebar_style = """
+    <style>
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+    </style>
+"""
+st.markdown(hide_sidebar_style, unsafe_allow_html=True)
+
+def show_navbar():
+    from app import show_navbar
+    show_navbar()
+
 def manage_products():
     st.subheader("Kelola Produk")
     
@@ -167,6 +180,7 @@ def main():
         st.error("Anda tidak memiliki akses ke halaman ini.")
         st.stop()
     
+    show_navbar()
     st.title("Admin Dashboard ⚙️")
     
     tab1, tab2, tab3 = st.tabs(["Produk", "Pesanan", "Pengguna"])
