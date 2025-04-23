@@ -18,7 +18,8 @@ def login_form():
             st.success("Login berhasil!")
             st.session_state["logged_in"] = True
             st.session_state["user_id"] = result[0]
-            st.rerun()
+            st.session_state["page"] = "dashboard"
+            st.rerun()  # Refresh halaman
         else:
             st.error("Email atau password salah.")
 
