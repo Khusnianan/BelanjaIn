@@ -3,9 +3,6 @@ import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class Database:
     def __init__(self):
@@ -134,7 +131,7 @@ def init_db():
         "INSERT INTO users (username, password, email, full_name, role) "
         "VALUES (%s, %s, %s, %s, %s) "
         "ON CONFLICT (username) DO NOTHING",
-        ("admin", "admin123", "admin@belanja.in", "Admin BelanjaIn", "admin")
+        ("admin", "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8", "admin@belanja.in", "Admin BelanjaIn", "admin")
     )
 
 init_db()
