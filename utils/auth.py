@@ -16,6 +16,20 @@ def authenticate(username, password):
     return user
 
 def register_user(username, password, email, full_name, address=None, phone=None):
+    # Check if username or email already exists
+    existing_user = db.execute_query(
+        "SELECT * FROM users WHERE username = %s OR email = %s",
+        (username, email),
+        fetch_one=True
+    )
+    
+    if existing_user:
+        if existing_user['username'] == username:
+            st.error("Username sudah digunakan")
+        else:
+            st.error("Email sudah terdaftar")
+        return None
+    
     hashed_password = hash_password(password)
     try:
         user = db.execute_query(
@@ -26,7 +40,7 @@ def register_user(username, password, email, full_name, address=None, phone=None
         )
         return user
     except Exception as e:
-        st.error(f"Registration failed: {e}")
+        st.error(f"Registrasi gagal: {e}")
         return None
 
 def get_current_user():
