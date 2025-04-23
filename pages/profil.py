@@ -7,7 +7,7 @@ st.set_page_config(
     layout="wide"
 )
 
-from utils.auth import is_logged_in, get_current_user, register_user
+from utils.auth_utils import is_logged_in, get_current_user, register_user
 from utils.db import db
 from utils.navigation import tampilkan_navbar
 
