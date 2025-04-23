@@ -18,7 +18,7 @@ def login_form():
             st.success("Login berhasil!")
             st.session_state["logged_in"] = True
             st.session_state["user_id"] = result[0]
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Email atau password salah.")
 
